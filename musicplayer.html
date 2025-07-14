@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Player</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #232946;
+            color: #fff;
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .player {
+            background: #121629;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+            padding: 2rem 2.5rem;
+            width: 340px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .cover {
+            width: 180px;
+            height: 180px;
+            border-radius: 16px;
+            background: #393e6e;
+            margin-bottom: 1.5rem;
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+        .song-info {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .song-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        .song-artist {
+            font-size: 1rem;
+            color: #b8c1ec;
+        }
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .controls button {
+            background: #393e6e;
+            border: none;
+            color: #fff;
+            font-size: 1.3rem;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .controls button:hover {
+            background: #eebbc3;
+            color: #232946;
+            transform: scale(1.1);
+        }
+        .progress-container {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: #393e6e;
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+        }
+        .progress {
+            height: 100%;
+            background: #eebbc3;
+            border-radius: 3px;
+            width: 0%;
+        }
+        .time {
+            font-size: 0.9rem;
+            width: 40px;
+            text-align: center;
+        }
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: 100%;
+        }
+        .volume-bar {
+            flex: 1;
+            height: 6px;
+            background: #393e6e;
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+        }
+        .volume-level {
+            height: 100%;
+            background: #eebbc3;
+            border-radius: 3px;
+            width: 70%;
+        }
+        .volume-icon {
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="player">
+        <div class="cover" id="cover"></div>
+        <div class="song-info">
+            <div class="song-title" id="title">Song Title</div>
+            <div class="song-artist" id="artist">Artist</div>
+        </div>
+        <div class="controls">
+            <button id="prev" title="Previous">⏮️</button>
+            <button id="play" title="Play/Pause">▶️</button>
+            <button id="next" title="Next">⏭️</button>
+        </div>
+        <div class="progress-container">
+            <span class="time" id="currentTime">0:00</span>
+            <div class="progress-bar" id="progressBar">
+                <div class="progress" id="progress"></div>
+            </div>
+            <span class="time" id="duration">0:00</span>
+        </div>
+        <div class="volume-container">
+            <span class="volume-icon">🔊</span>
+            <div class="volume-bar" id="volumeBar">
+                <div class="volume-level" id="volumeLevel"></div>
+            </div>
+        </div>
+        <audio id="audio"></audio>
+    </div>
+    <script>
+        // Demo playlist
+        const playlist = [
+            {
+                title: "Acoustic Breeze",
+                artist: "Bensound",
+                src: "https://www.bensound.com/bensound-music/bensound-acousticbreeze.mp3",
+                cover: "https://www.bensound.com/bensound-img/acousticbreeze.jpg"
+            },
+            {
+                title: "Creative Minds",
+                artist: "Bensound",
+                src: "https://www.bensound.com/bensound-music/bensound-creativeminds.mp3",
+                cover: "https://www.bensound.com/bensound-img/creativeminds.jpg"
+            },
+            {
+                title: "Sunny",
+                artist: "Bensound",
+                src: "https://www.bensound.com/bensound-music/bensound-sunny.mp3",
+                cover: "https://www.bensound.com/bensound-img/sunny.jpg"
+            }
+        ];
+        let currentSong = 0;
+        const audio = document.getElementById('audio');
+        const playBtn = document.getElementById('play');
+        const prevBtn = document.getElementById('prev');
+        const nextBtn = document.getElementById('next');
+        const title = document.getElementById('title');
+        const artist = document.getElementById('artist');
+        const cover = document.getElementById('cover');
+        const progressBar = document.getElementById('progressBar');
+        const progress = document.getElementById('progress');
+        const currentTimeEl = document.getElementById('currentTime');
+        const durationEl = document.getElementById('duration');
+        const volumeBar = document.getElementById('volumeBar');
+        const volumeLevel = document.getElementById('volumeLevel');
+
+        function loadSong(index) {
+            const song = playlist[index];
+            title.textContent = song.title;
+            artist.textContent = song.artist;
+            cover.style.backgroundImage = `url('${song.cover}')`;
+            audio.src = song.src;
+        }
+        function playSong() {
+            audio.play();
+            playBtn.textContent = '⏸️';
+        }
+        function pauseSong() {
+            audio.pause();
+            playBtn.textContent = '▶️';
+        }
+        function togglePlay() {
+            if (audio.paused) {
+                playSong();
+            } else {
+                pauseSong();
+            }
+        }
+        function prevSong() {
+            currentSong = (currentSong - 1 + playlist.length) % playlist.length;
+            loadSong(currentSong);
+            playSong();
+        }
+        function nextSong() {
+            currentSong = (currentSong + 1) % playlist.length;
+            loadSong(currentSong);
+            playSong();
+        }
+        function updateProgress() {
+            if (audio.duration) {
+                const percent = (audio.currentTime / audio.duration) * 100;
+                progress.style.width = percent + '%';
+                currentTimeEl.textContent = formatTime(audio.currentTime);
+                durationEl.textContent = formatTime(audio.duration);
+            }
+        }
+        function setProgress(e) {
+            const width = progressBar.clientWidth;
+            const clickX = e.offsetX;
+            audio.currentTime = (clickX / width) * audio.duration;
+        }
+        function formatTime(sec) {
+            const m = Math.floor(sec / 60);
+            const s = Math.floor(sec % 60);
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+        function setVolume(e) {
+            const width = volumeBar.clientWidth;
+            const clickX = e.offsetX;
+            const vol = clickX / width;
+            audio.volume = vol;
+            volumeLevel.style.width = (vol * 100) + '%';
+        }
+        // Event listeners
+        playBtn.addEventListener('click', togglePlay);
+        prevBtn.addEventListener('click', prevSong);
+        nextBtn.addEventListener('click', nextSong);
+        audio.addEventListener('timeupdate', updateProgress);
+        audio.addEventListener('ended', nextSong);
+        progressBar.addEventListener('click', setProgress);
+        volumeBar.addEventListener('click', setVolume);
+        // Init
+        loadSong(currentSong);
+        audio.volume = 0.7;
+        volumeLevel.style.width = '70%';
+        audio.addEventListener('loadedmetadata', updateProgress);
+    </script>
+</body>
+</html>
