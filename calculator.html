@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <style>
+        body {
+            background: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .calculator {
+            background: #222;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+            width: 320px;
+        }
+        .display {
+            background: #111;
+            color: #fff;
+            font-size: 2rem;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: right;
+            margin-bottom: 1rem;
+            min-height: 2.5rem;
+            word-break: break-all;
+        }
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+        button {
+            padding: 1rem;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 8px;
+            background: #333;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #444;
+        }
+        .operator {
+            background: #ff9500;
+            color: #fff;
+        }
+        .operator:hover {
+            background: #ffa733;
+        }
+        .equals {
+            background: #34c759;
+            color: #fff;
+            grid-column: span 2;
+        }
+        .equals:hover {
+            background: #51e07d;
+        }
+        .clear {
+            background: #ff3b30;
+            color: #fff;
+        }
+        .clear:hover {
+            background: #ff5c4d;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="display" id="display">0</div>
+        <div class="buttons">
+            <button class="clear" onclick="clearDisplay()">C</button>
+            <button onclick="appendValue('(')">(</button>
+            <button onclick="appendValue(')')">)</button>
+            <button class="operator" onclick="appendValue('/')">÷</button>
+
+            <button onclick="appendValue('7')">7</button>
+            <button onclick="appendValue('8')">8</button>
+            <button onclick="appendValue('9')">9</button>
+            <button class="operator" onclick="appendValue('*')">×</button>
+
+            <button onclick="appendValue('4')">4</button>
+            <button onclick="appendValue('5')">5</button>
+            <button onclick="appendValue('6')">6</button>
+            <button class="operator" onclick="appendValue('-')">−</button>
+
+            <button onclick="appendValue('1')">1</button>
+            <button onclick="appendValue('2')">2</button>
+            <button onclick="appendValue('3')">3</button>
+            <button class="operator" onclick="appendValue('+')">+</button>
+
+            <button onclick="appendValue('0')">0</button>
+            <button onclick="appendValue('.')">.</button>
+            <button class="equals" onclick="calculate()">=</button>
+        </div>
+    </div>
+    <script>
+        let display = document.getElementById('display');
+        let currentInput = '';
+        function appendValue(val) {
+            if (display.innerText === '0' && val !== '.') {
+                currentInput = '';
+            }
+            currentInput += val;
+            display.innerText = currentInput;
+        }
+        function clearDisplay() {
+            currentInput = '';
+            display.innerText = '0';
+        }
+        function calculate() {
+            try {
+                // Replace division and multiplication symbols for eval
+                let result = eval(currentInput.replace(/÷/g, '/').replace(/×/g, '*'));
+                display.innerText = result;
+                currentInput = result.toString();
+            } catch (e) {
+                display.innerText = 'Error';
+                currentInput = '';
+            }
+        }
+    </script>
+</body>
+</html>
